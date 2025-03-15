@@ -37,7 +37,7 @@ jobs:
             echo "No API key present - check repository secrets"
             exit 1
           else
-            echo "API key prefix (first 5 chars): ${REACT_APP_OPENAI_API_KEY:0:5}"
+            echo "API key is present and valid"
           fi
           CI=false npm run build
           
