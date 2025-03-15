@@ -86,10 +86,10 @@ function App() {
     };
 
     const sanitizeText = (text) => {
+        if (!text) return '';
         return text
-            .replace(/[\x00-\x1F\x7F-\x9F]/g, '') // Changed from \u0000-\u001F
-            .replace(/\u2028/g, ' ') // Replace line separator
-            .replace(/\u2029/g, ' ') // Replace paragraph separator
+            .replace(/[^\x20-\x7E\s]/g, '') // Only keep printable ASCII characters and whitespace
+            .replace(/\s+/g, ' ')           // Normalize whitespace
             .trim();
     };
 
@@ -148,9 +148,7 @@ function App() {
 
             // Safely parse the response
             const responseText = response.data.choices[0].message.content;
-            const parsedAnalysis = JSON.parse(
-                responseText.replace(/[\x00-\x1F\x7F-\x9F]/g, '') // Changed from \u0000-\u001F
-            );
+            const parsedAnalysis = JSON.parse(responseText.trim());
             console.log('Raw Response:', responseText);
             console.log('Parsed Analysis:', parsedAnalysis);
             console.log('Available Sections:', Object.keys(parsedAnalysis));
