@@ -30,6 +30,8 @@ jobs:
           PUBLIC_URL: 'https://malam-shadab.github.io/projectx'
         run: |
           cd frontend
+          echo "Checking if API key is set (length only for security)"
+          echo "API key length: ${#REACT_APP_OPENAI_API_KEY}"
           CI=false npm run build
           
       - name: Deploy to GitHub Pages

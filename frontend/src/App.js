@@ -4,6 +4,7 @@ import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
 import { configurePdfWorker } from './pdfWorkerConfig';
 import { jsPDF } from "jspdf";
 import './App.css';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 function App() {
     const [text, setText] = useState("");
@@ -95,6 +96,11 @@ function App() {
 
     const analyzeText = async () => {
         try {
+            const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
+            if (!apiKey) {
+                throw new Error("OpenAI API key not found");
+            }
+
             setError(null);
             setIsAnalyzing(true);
             
@@ -141,7 +147,7 @@ function App() {
                 temperature: 0.7
             }, {
                 headers: {
-                    'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
+                    'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -155,7 +161,7 @@ function App() {
             setAnalysis(parsedAnalysis);
         } catch (error) {
             console.error("Analysis error:", error);
-            setError(error.message || "Failed to analyze text");
+            setError(error.response?.data?.error?.message || error.message || "Failed to analyze text");
         } finally {
             setIsAnalyzing(false);
         }
@@ -321,71 +327,73 @@ function App() {
     };
 
     return (
-        <div className="App">
-            <div className="App-header">
-                <h1>Text Analysis App</h1>
-                <div className="analysis-container">
-                    <div className="input-controls">
-                        <textarea
-                            placeholder="Enter your text here..."
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            className="text-input"
-                            rows="6"
-                        />
-                        <div className="button-group">
-                            <button 
-                                onClick={analyzeText}
-                                disabled={isAnalyzing}
-                                className={isAnalyzing ? 'analyzing' : ''}
-                            >
-                                {isAnalyzing ? 'Analyzing...' : 'Analyze Text'}
-                            </button>
-                            <button 
-                                onClick={() => fileInputRef.current.click()}
-                                className="upload-btn"
-                            >
-                                Upload Document
-                            </button>
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                onChange={handleFileUpload}
-                                accept=".txt,.pdf"
-                                style={{ display: 'none' }}
+        <Router basename="/projectx">
+            <div className="App">
+                <div className="App-header">
+                    <h1>Text Analysis App</h1>
+                    <div className="analysis-container">
+                        <div className="input-controls">
+                            <textarea
+                                placeholder="Enter your text here..."
+                                value={text}
+                                onChange={(e) => setText(e.target.value)}
+                                className="text-input"
+                                rows="6"
                             />
+                            <div className="button-group">
+                                <button 
+                                    onClick={analyzeText}
+                                    disabled={isAnalyzing}
+                                    className={isAnalyzing ? 'analyzing' : ''}
+                                >
+                                    {isAnalyzing ? 'Analyzing...' : 'Analyze Text'}
+                                </button>
+                                <button 
+                                    onClick={() => fileInputRef.current.click()}
+                                    className="upload-btn"
+                                >
+                                    Upload Document
+                                </button>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleFileUpload}
+                                    accept=".txt,.pdf"
+                                    style={{ display: 'none' }}
+                                />
+                            </div>
                         </div>
+                        {error && (
+                            <div className="error-message fade-in">
+                                {error}
+                            </div>
+                        )}
+                        {analysis && (
+                            <div className="results-container fade-in">
+                                <h3>Analysis Results</h3>
+                                {renderAnalysisSection("Grammar", analysis.Grammar, 'grammar')}
+                                {renderAnalysisSection("Tone", analysis.Tone)}
+                                {renderAnalysisSection("Sentiment", analysis.Sentiment)}
+                                {renderAnalysisSection("Main Topics", analysis["Main Topics"], 'topics')}
+                                {renderAnalysisSection("Professional Experience", analysis["Professional Experience"])}
+                                {renderAnalysisSection("Work Projects", analysis["Work Projects"])}
+                                {renderAnalysisSection("Job Responsibilities", analysis["Job Responsibilities"])}
+                                {renderAnalysisSection("Educational Qualifications", analysis["Educational Qualifications"])}
+                                {renderAnalysisSection("Awards and Presentations", analysis["Awards and Presentations"])}
+                                {renderAnalysisSection("Technical Skills", analysis["Technical Skills"])}
+                                {renderAnalysisSection("Suggestions", analysis.Suggestions, 'suggestions')}
+                                <button 
+                                    onClick={downloadAsPDF}
+                                    className="download-btn"
+                                >
+                                    Download Report as PDF
+                                </button>
+                            </div>
+                        )}
                     </div>
-                    {error && (
-                        <div className="error-message fade-in">
-                            {error}
-                        </div>
-                    )}
-                    {analysis && (
-                        <div className="results-container fade-in">
-                            <h3>Analysis Results</h3>
-                            {renderAnalysisSection("Grammar", analysis.Grammar, 'grammar')}
-                            {renderAnalysisSection("Tone", analysis.Tone)}
-                            {renderAnalysisSection("Sentiment", analysis.Sentiment)}
-                            {renderAnalysisSection("Main Topics", analysis["Main Topics"], 'topics')}
-                            {renderAnalysisSection("Professional Experience", analysis["Professional Experience"])}
-                            {renderAnalysisSection("Work Projects", analysis["Work Projects"])}
-                            {renderAnalysisSection("Job Responsibilities", analysis["Job Responsibilities"])}
-                            {renderAnalysisSection("Educational Qualifications", analysis["Educational Qualifications"])}
-                            {renderAnalysisSection("Awards and Presentations", analysis["Awards and Presentations"])}
-                            {renderAnalysisSection("Technical Skills", analysis["Technical Skills"])}
-                            {renderAnalysisSection("Suggestions", analysis.Suggestions, 'suggestions')}
-                            <button 
-                                onClick={downloadAsPDF}
-                                className="download-btn"
-                            >
-                                Download Report as PDF
-                            </button>
-                        </div>
-                    )}
                 </div>
             </div>
-        </div>
+        </Router>
     );
 }
 
