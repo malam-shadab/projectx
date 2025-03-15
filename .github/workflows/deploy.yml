@@ -23,6 +23,7 @@ jobs:
         run: |
           cd frontend
           npm install
+          npm install react-router-dom@6.x
           
       - name: Build
         env:
