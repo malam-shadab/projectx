@@ -87,7 +87,7 @@ function App() {
 
     const sanitizeText = (text) => {
         return text
-            .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+            .replace(/[\x00-\x1F\x7F-\x9F]/g, '') // Changed from \u0000-\u001F
             .replace(/\u2028/g, ' ') // Replace line separator
             .replace(/\u2029/g, ' ') // Replace paragraph separator
             .trim();
@@ -148,7 +148,9 @@ function App() {
 
             // Safely parse the response
             const responseText = response.data.choices[0].message.content;
-            const parsedAnalysis = JSON.parse(responseText.replace(/[\u0000-\u001F\u007F-\u009F]/g, ''));
+            const parsedAnalysis = JSON.parse(
+                responseText.replace(/[\x00-\x1F\x7F-\x9F]/g, '') // Changed from \u0000-\u001F
+            );
             console.log('Raw Response:', responseText);
             console.log('Parsed Analysis:', parsedAnalysis);
             console.log('Available Sections:', Object.keys(parsedAnalysis));
