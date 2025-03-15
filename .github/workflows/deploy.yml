@@ -27,6 +27,7 @@ jobs:
       - name: Build
         env:
           REACT_APP_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PUBLIC_URL: 'https://malam-shadab.github.io/projectx'
         run: |
           cd frontend
           CI=false npm run build
