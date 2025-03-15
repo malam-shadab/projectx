@@ -29,11 +29,13 @@ jobs:
           REACT_APP_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           cd frontend
-          npm run build
+          CI=false npm run build
           
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: frontend/build
           branch: gh-pages
           clean: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Deploy React app to GitHub Pages"
