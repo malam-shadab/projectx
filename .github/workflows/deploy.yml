@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages V
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -23,22 +23,12 @@ jobs:
         run: |
           cd frontend
           npm install
-          npm install react-router-dom@6.x
           
       - name: Build
         env:
-          REACT_APP_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          PUBLIC_URL: 'https://malam-shadab.github.io/projectx'
+          REACT_APP_API_URL: "https://projectx-api-malam-shadab-f485c3fe49cc.herokuapp.com"
         run: |
           cd frontend
-          echo "Workflow run ID: $GITHUB_RUN_ID"
-          echo "Run start time: $(date)"
-          if [ -z "$REACT_APP_OPENAI_API_KEY" ]; then
-            echo "No API key present - check repository secrets"
-            exit 1
-          else
-            echo "API key is present and valid"
-          fi
           CI=false npm run build
           
       - name: Deploy to GitHub Pages
@@ -47,5 +37,3 @@ jobs:
           folder: frontend/build
           branch: gh-pages
           clean: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Deploy React app to GitHub Pages"
