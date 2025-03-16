@@ -99,19 +99,34 @@ function App() {
             setIsAnalyzing(true);
             setError(null);
 
-            console.log('Making request to:', process.env.REACT_APP_API_URL); // Debug log
+            console.log('Sending analysis request:', {
+                apiUrl: process.env.REACT_APP_API_URL,
+                textLength: text?.length
+            });
 
             const response = await axios.post(`${process.env.REACT_APP_API_URL}/analyze`, {
                 text: text
             });
 
-            console.log('Response:', response.data); // Debug log
+            console.log('Response received:', {
+                status: response.status,
+                hasData: !!response.data,
+                dataType: typeof response.data
+            });
 
-            const parsedAnalysis = JSON.parse(response.data.choices[0].message.content);
-            setAnalysis(parsedAnalysis);
+            if (!response.data) {
+                throw new Error('Empty response from server');
+            }
+
+            setAnalysis(response.data);
         } catch (error) {
-            console.error('Frontend error:', error);
-            setError(error.response?.data?.error || 'Failed to analyze text');
+            console.error('Analysis error:', {
+                message: error.message,
+                status: error.response?.status,
+                data: error.response?.data,
+                stack: error.stack
+            });
+            setError(error.response?.data?.error || error.message || 'Failed to analyze text');
         } finally {
             setIsAnalyzing(false);
         }
