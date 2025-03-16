@@ -110,23 +110,19 @@ function App() {
 
             console.log('Response received:', {
                 status: response.status,
-                hasData: !!response.data,
-                dataType: typeof response.data
+                data: response.data
             });
 
-            if (!response.data) {
-                throw new Error('Empty response from server');
-            }
-
+            // No need to parse, backend already sends parsed JSON
             setAnalysis(response.data);
+
         } catch (error) {
-            console.error('Analysis error:', {
+            console.error('Frontend error:', {
                 message: error.message,
-                status: error.response?.status,
-                data: error.response?.data,
-                stack: error.stack
+                response: error.response?.data,
+                status: error.response?.status
             });
-            setError(error.response?.data?.error || error.message || 'Failed to analyze text');
+            setError(error.response?.data?.error || 'Failed to analyze text');
         } finally {
             setIsAnalyzing(false);
         }
