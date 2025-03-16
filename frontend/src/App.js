@@ -96,72 +96,22 @@ function App() {
 
     const analyzeText = async () => {
         try {
-            const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
-            if (!apiKey) {
-                throw new Error("OpenAI API key not found");
-            }
-
-            setError(null);
             setIsAnalyzing(true);
-            
-            if (!text.trim()) {
-                throw new Error("Please enter some text to analyze");
-            }
-            
-            const sanitizedText = sanitizeText(text);
-            
-            const response = await axios.post("https://api.openai.com/v1/chat/completions", {
-                model: "gpt-4",
-                messages: [{
-                    role: "user",
-                    content: `Analyze the following resume and provide a detailed analysis in JSON format with the following structure:
-                    {
-                        "Grammar": {
-                            "Comments": ["list of grammar issues"],
-                            "CorrectedText": "corrected version of the text"
-                        },
-                        "Professional Experience": {
-                            "Analysis": "summary of professional experience with a focus on relevant skills"
-                        },
-                        "Work Projects": {
-                            "Analysis": "list of projects with a brief description and key achievements"
-                        },
-                        "Job Responsibilities": {
-                            "Analysis": "job responsibilities and key achievements"
-                        },
-                        "Educational Qualifications": {
-                            "Analysis": "educational qualifications and key achievements"
-                        },
-                        "Awards and Presentations": {
-                            "Analysis": "Awards and Presentations"
-                        },
-                        "Technical Skills": {
-                            "Analysis": "technical skills and proficiencies"
-                        },
-                        "Suggestions": {
-                            "Topics": ["list of suggestions based on resume like certifications, additional skills, etc."]
-                        }
-                    }
-                    Text to analyze: ${sanitizedText}`
-                }],
-                temperature: 0.7
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
-                }
+            setError(null);
+
+            console.log('Making request to:', process.env.REACT_APP_API_URL); // Debug log
+
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/analyze`, {
+                text: text
             });
 
-            // Safely parse the response
-            const responseText = response.data.choices[0].message.content;
-            const parsedAnalysis = JSON.parse(responseText.trim());
-            console.log('Raw Response:', responseText);
-            console.log('Parsed Analysis:', parsedAnalysis);
-            console.log('Available Sections:', Object.keys(parsedAnalysis));
+            console.log('Response:', response.data); // Debug log
+
+            const parsedAnalysis = JSON.parse(response.data.choices[0].message.content);
             setAnalysis(parsedAnalysis);
         } catch (error) {
-            console.error("Analysis error:", error);
-            setError(error.response?.data?.error?.message || error.message || "Failed to analyze text");
+            console.error('Frontend error:', error);
+            setError(error.response?.data?.error || 'Failed to analyze text');
         } finally {
             setIsAnalyzing(false);
         }
