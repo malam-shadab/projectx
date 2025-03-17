@@ -249,74 +249,41 @@ function App() {
     const renderAnalysisSection = (title, content, type = 'default') => {
         if (!content || !editedAnalysis) return null;
         
-        // Get the same color scale as used in graph
-        const colorScale = scaleOrdinal(schemeSet3);
-        const sectionIndex = Object.keys(analysis).indexOf(title);
-        const sectionColor = colorScale(sectionIndex);
-        
         return (
             <div 
                 className="analysis-section fade-in"
-                style={{
-                    borderLeft: `4px solid ${sectionColor}`,
-                    backgroundColor: `${sectionColor}11` // Very light tint
-                }}
+                data-section={title}
             >
-                <h4 style={{ color: sectionColor }}>{title}</h4>
+                <h4>{title}</h4>
                 <div className="section-content">
                     {type === 'grammar' ? (
                         <>
-                            <div className="grammar-issues">
-                                <h5>Issues Found:</h5>
-                                <ul>
-                                    {editedAnalysis.Grammar.Comments.map((item, index) => (
-                                        <li key={index}>
-                                            <textarea
-                                                value={item}
-                                                onChange={(e) => {
-                                                    const newComments = [...editedAnalysis.Grammar.Comments];
-                                                    newComments[index] = e.target.value;
-                                                    handleAnalysisEdit('Grammar', newComments, 'comments');
-                                                }}
-                                                className="editable-content"
-                                            />
-                                        </li>
-                                    ))}
-                                </ul>
+                            <div className="editable-content">
+                                {content.Comments?.map((comment, index) => (
+                                    <div key={index}>• {comment}</div>
+                                ))}
                             </div>
-                            <div className="corrected-text">
-                                <h5>Corrected Text:</h5>
-                                <textarea
-                                    value={editedAnalysis.Grammar.CorrectedText}
-                                    onChange={(e) => handleAnalysisEdit('Grammar', e.target.value)}
-                                    className="editable-content"
-                                    rows="4"
-                                />
+                            <div className="editable-content">
+                                {content.CorrectedText}
                             </div>
                         </>
-                    ) : type === 'suggestions' ? (
-                        <ul>
-                            {editedAnalysis.Suggestions.Topics.map((topic, index) => (
-                                <li key={index}>
-                                    <textarea
-                                        value={topic}
-                                        onChange={(e) => {
-                                            const newTopics = [...editedAnalysis["Main Topics"].Topics];
-                                            newTopics[index] = e.target.value;
-                                            handleAnalysisEdit('Main Topics', newTopics);
-                                        }}
-                                        className="editable-content"
-                                    />
-                                </li>
+                    ) : type === 'topics' ? (
+                        <div className="editable-content">
+                            {content.Topics?.map((topic, index) => (
+                                <div key={index}>• {topic}</div>
                             ))}
-                        </ul>
+                            {content.Analysis && <div>{content.Analysis}</div>}
+                        </div>
+                    ) : type === 'suggestions' ? (
+                        <div className="editable-content">
+                            {content.Topics?.map((suggestion, index) => (
+                                <div key={index}>• {suggestion}</div>
+                            ))}
+                        </div>
                     ) : (
-                        <textarea
-                            value={editedAnalysis[title].Analysis}
-                            onChange={(e) => handleAnalysisEdit(title, e.target.value)}
-                            className="editable-content"
-                            rows="4"
-                        />
+                        <div className="editable-content">
+                            {content.Analysis}
+                        </div>
                     )}
                 </div>
             </div>
