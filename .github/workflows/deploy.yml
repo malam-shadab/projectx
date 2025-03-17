@@ -26,13 +26,17 @@ jobs:
           cd frontend
           npm install
           npm install react-router-dom@6.x
+          npm install react-force-graph-2d d3-scale
           
       - name: Build
         env:
           REACT_APP_API_URL: "https://projectx-api-malam-shadab-f485c3fe49cc.herokuapp.com"
+          CI: false
+          NODE_ENV: production
         run: |
           cd frontend
-          CI=false npm run build
+          echo "Building with API URL: $REACT_APP_API_URL"
+          npm run build
           
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
