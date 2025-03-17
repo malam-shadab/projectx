@@ -164,14 +164,22 @@ function App() {
 
             // Helper function to add section with background
             const addColoredSection = (title, content, color) => {
-                pdf.setFillColor(...color); // RGB values
+                // Set background color with opacity
+                pdf.setFillColor(...color);
                 pdf.rect(margin - 5, yPos - 5, pageWidth - 2 * (margin - 5), 20, 'F');
-                pdf.setTextColor(0);
+                
+                // Set text color to match section color but darker
+                const textColor = color.map(c => c * 0.7); // Darken the color for text
+                pdf.setTextColor(...textColor);
+                
                 pdf.setFont('helvetica', 'bold');
                 pdf.text(title, margin, yPos + 5);
                 yPos += 15;
 
+                // Reset text color for content
+                pdf.setTextColor(44, 62, 80); // Dark gray color for content
                 pdf.setFont('helvetica', 'normal');
+                
                 if (typeof content === 'string') {
                     const lines = pdf.splitTextToSize(content, pageWidth - 2 * margin);
                     pdf.text(lines, margin, yPos);

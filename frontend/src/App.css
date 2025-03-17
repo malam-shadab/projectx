@@ -248,11 +248,10 @@ input[type="number"]::-webkit-outer-spin-button {
     width: 95%;
     padding: 1.5rem;
     border-radius: 8px;
-    margin: 0.75rem auto; /* Changed from '0.75rem 0' to center */
+    margin: 1rem auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    transition: all 0.3s ease;
 }
 
 /* Dynamic section colors using the same d3 color scheme */
@@ -282,12 +281,10 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* Section content container */
 .section-content {
-    width: 100%; /* Changed from 95% */
-    padding: 0;  /* Removed horizontal padding */
+    width: 95%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 0 auto;
 }
 
 .section-content ul {
@@ -343,7 +340,7 @@ input[type="file"]:hover {
 
 /* Editable content area */
 .editable-content {
-    width: 100%;
+    width: 95% !important; /* Force width */
     min-height: 80px;
     padding: 1.2rem;
     border-radius: 6px;
