@@ -248,7 +248,7 @@ input[type="number"]::-webkit-outer-spin-button {
     width: 95%;
     padding: 1.5rem;
     border-radius: 8px;
-    margin: 0.75rem 0;
+    margin: 0.75rem auto; /* Changed from '0.75rem 0' to center */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -282,8 +282,8 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* Section content container */
 .section-content {
-    width: 95%;
-    padding: 0.5rem 0;
+    width: 100%; /* Changed from 95% */
+    padding: 0;  /* Removed horizontal padding */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -353,12 +353,14 @@ input[type="file"]:hover {
     line-height: 1.6;
     color: #2c3e50;
     margin: 0.5rem 0;
+    resize: vertical;
+    transition: all 0.3s ease;
 }
 
 .editable-content:focus {
-  outline: none;
-  border-color: #61dafb;
-  box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.3);
+    outline: none;
+    border-color: #61dafb;
+    box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.3);
 }
 
 .editable-content div {
@@ -456,6 +458,7 @@ input[type="file"]:hover {
   .analysis-section {
     width: 100%;
     padding: 1rem;
+    margin: 0.5rem 0;
   }
 
   .text-input {
@@ -484,6 +487,28 @@ input[type="file"]:hover {
 
     .button-group button {
         width: 100%;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .analysis-container {
+        padding: 0.5rem;
+    }
+
+    .results-container {
+        width: 100%;
+        padding: 0.5rem;
+    }
+
+    .analysis-section {
+        width: 100%;
+        padding: 1rem;
+        margin: 0.5rem 0;
+    }
+
+    .editable-content {
+        width: 100%;
+        margin: 0.5rem 0;
     }
 }
 

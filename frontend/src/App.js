@@ -249,6 +249,31 @@ function App() {
     const renderAnalysisSection = (title, content, type = 'default') => {
         if (!content || !editedAnalysis) return null;
         
+        const handleContentChange = (e) => {
+            const updatedContent = { ...editedAnalysis[title] };
+            if (type === 'grammar') {
+                if (e.target.dataset.type === 'comment') {
+                    updatedContent.Comments = e.target.value.split('\n').filter(line => line.trim());
+                } else {
+                    updatedContent.CorrectedText = e.target.value;
+                }
+            } else if (type === 'topics' || type === 'suggestions') {
+                if (e.target.dataset.type === 'topics') {
+                    updatedContent.Topics = e.target.value.split('\n').filter(line => line.trim());
+                }
+                if (content.Analysis) {
+                    updatedContent.Analysis = content.Analysis;
+                }
+            } else {
+                updatedContent.Analysis = e.target.value;
+            }
+            
+            setEditedAnalysis({
+                ...editedAnalysis,
+                [title]: updatedContent
+            });
+        };
+        
         return (
             <div 
                 className="analysis-section fade-in"
@@ -258,32 +283,43 @@ function App() {
                 <div className="section-content">
                     {type === 'grammar' ? (
                         <>
-                            <div className="editable-content">
-                                {content.Comments?.map((comment, index) => (
-                                    <div key={index}>• {comment}</div>
-                                ))}
-                            </div>
-                            <div className="editable-content">
-                                {content.CorrectedText}
-                            </div>
+                            <textarea
+                                className="editable-content"
+                                data-type="comment"
+                                value={content.Comments?.join('\n')}
+                                onChange={handleContentChange}
+                                placeholder="Comments..."
+                            />
+                            <textarea
+                                className="editable-content"
+                                value={content.CorrectedText}
+                                onChange={handleContentChange}
+                                placeholder="Corrected text..."
+                            />
                         </>
                     ) : type === 'topics' ? (
-                        <div className="editable-content">
-                            {content.Topics?.map((topic, index) => (
-                                <div key={index}>• {topic}</div>
-                            ))}
-                            {content.Analysis && <div>{content.Analysis}</div>}
-                        </div>
+                        <textarea
+                            className="editable-content"
+                            data-type="topics"
+                            value={content.Topics?.join('\n')}
+                            onChange={handleContentChange}
+                            placeholder="Topics..."
+                        />
                     ) : type === 'suggestions' ? (
-                        <div className="editable-content">
-                            {content.Topics?.map((suggestion, index) => (
-                                <div key={index}>• {suggestion}</div>
-                            ))}
-                        </div>
+                        <textarea
+                            className="editable-content"
+                            data-type="topics"
+                            value={content.Topics?.join('\n')}
+                            onChange={handleContentChange}
+                            placeholder="Suggestions..."
+                        />
                     ) : (
-                        <div className="editable-content">
-                            {content.Analysis}
-                        </div>
+                        <textarea
+                            className="editable-content"
+                            value={content.Analysis}
+                            onChange={handleContentChange}
+                            placeholder="Analysis..."
+                        />
                     )}
                 </div>
             </div>
