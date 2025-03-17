@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 import { scaleOrdinal } from 'd3-scale';
 import { schemeSet3 } from 'd3-scale-chromatic';
@@ -20,6 +20,29 @@ const AnalysisGraph = ({ analysis }) => {
     const EDGE_TEXT_SIZE = 2;
     const GLOW_STRENGTH = 35; // Increased glow strength
     const HIGHLIGHT_WIDTH_MULTIPLIER = 5; // Increased highlight width
+
+    // Add responsive sizing
+    const [dimensions, setDimensions] = useState({
+        width: 500,
+        height: 300
+    });
+
+    useEffect(() => {
+        const updateDimensions = () => {
+            const container = document.querySelector('.graph-container');
+            if (container) {
+                const width = Math.min(500, container.clientWidth - 20);
+                setDimensions({
+                    width: width,
+                    height: Math.min(300, width * 0.6)
+                });
+            }
+        };
+
+        updateDimensions();
+        window.addEventListener('resize', updateDimensions);
+        return () => window.removeEventListener('resize', updateDimensions);
+    }, []);
 
     const { nodes, links, topPairs } = useMemo(() => {
         if (!analysis) return { nodes: [], links: [], topPairs: [] };
@@ -159,8 +182,8 @@ const AnalysisGraph = ({ analysis }) => {
                         }
                     }}
                     onNodeClick={handleNodeClick}
-                    width={500}
-                    height={300}
+                    width={dimensions.width}
+                    height={dimensions.height}
                     d3VelocityDecay={0.3}
                     cooldownTime={2000}
                     backgroundColor="#ffffff"

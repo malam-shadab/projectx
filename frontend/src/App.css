@@ -1,3 +1,9 @@
+:root {
+    --section-padding: 1rem;
+    --border-radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
 .App {
   text-align: center;
   padding: 2rem;
@@ -235,13 +241,10 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .analysis-section {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  padding: 1.5rem;
+  padding: var(--section-padding);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
   margin: 1rem 0;
-  width: 90%;
-  max-width: 600px;
-  transition: all 0.3s ease;
 }
 
 .analysis-section:nth-child(1) {
@@ -322,15 +325,10 @@ input[type="file"]:hover {
 
 .editable-content {
   width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem;
   border-radius: 4px;
-  padding: 8px;
-  color: white;
-  font-size: 1rem;
-  resize: vertical;
-  min-height: 36px;
-  margin: 4px 0;
+  border: 1px solid #ddd;
+  background: #ffffff;
 }
 
 .editable-content:focus {
@@ -362,13 +360,16 @@ input[type="file"]:hover {
   padding: 0.5rem;
   margin: 1rem auto;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  max-width: 500px;
+  max-width: 100%;
   position: relative;
+  overflow: hidden;
 }
 
 .graph-container canvas {
   border-radius: 4px;
   cursor: default;
+  max-width: 100%;
+  height: auto !important;
 }
 
 .analysis-graph-section {
@@ -413,4 +414,37 @@ input[type="file"]:hover {
   color: #7f8c8d;
   font-style: italic;
   margin: 0.5rem 0;
+}
+
+@media screen and (max-width: 768px) {
+  .analysis-container {
+    padding: 1rem;
+  }
+
+  .results-container {
+    padding: 0.5rem;
+  }
+
+  .analysis-section {
+    margin: 0.5rem 0;
+  }
+
+  .text-input {
+    min-height: 100px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+    :root {
+        --section-padding: 0.5rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .button-group button {
+        width: 100%;
+    }
 }

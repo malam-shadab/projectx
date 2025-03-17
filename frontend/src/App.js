@@ -7,6 +7,8 @@ import './App.css';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AnalysisGraph from './components/AnalysisGraph';
 import html2canvas from 'html2canvas';
+import { scaleOrdinal } from 'd3-scale';
+import { schemeSet3 } from 'd3-scale-chromatic';
 
 function App() {
     const [text, setText] = useState("");
@@ -247,9 +249,20 @@ function App() {
     const renderAnalysisSection = (title, content, type = 'default') => {
         if (!content || !editedAnalysis) return null;
         
+        // Get the same color scale as used in graph
+        const colorScale = scaleOrdinal(schemeSet3);
+        const sectionIndex = Object.keys(analysis).indexOf(title);
+        const sectionColor = colorScale(sectionIndex);
+        
         return (
-            <div className="analysis-section fade-in">
-                <h4>{title}</h4>
+            <div 
+                className="analysis-section fade-in"
+                style={{
+                    borderLeft: `4px solid ${sectionColor}`,
+                    backgroundColor: `${sectionColor}11` // Very light tint
+                }}
+            >
+                <h4 style={{ color: sectionColor }}>{title}</h4>
                 <div className="section-content">
                     {type === 'grammar' ? (
                         <>
