@@ -25,8 +25,7 @@ jobs:
         run: |
           cd frontend
           npm install
-          npm install react-router-dom@6.x
-          npm install react-force-graph-2d d3-scale
+          npm install react-force-graph-2d d3-scale d3-scale-chromatic html2canvas jspdf
           
       - name: Build
         env:

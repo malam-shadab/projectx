@@ -5,6 +5,8 @@ import { configurePdfWorker } from './pdfWorkerConfig';
 import { jsPDF } from "jspdf";
 import './App.css';
 import { BrowserRouter as Router } from 'react-router-dom';
+import AnalysisGraph from './components/AnalysisGraph';
+import html2canvas from 'html2canvas';
 
 function App() {
     const [text, setText] = useState("");
@@ -13,6 +15,7 @@ function App() {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [editedAnalysis, setEditedAnalysis] = useState(null);
     const fileInputRef = useRef(null);
+    const graphRef = useRef();
 
     useEffect(() => {
         const initializeApp = async () => {
@@ -148,77 +151,97 @@ function App() {
         });
     };
 
-    const downloadAsPDF = () => {
+    const downloadAsPDF = async () => {
         if (!editedAnalysis) return;
 
-        const doc = new jsPDF();
-        let yPos = 20;
-        const lineHeight = 10;
-        const margin = 20;
-        const pageWidth = doc.internal.pageSize.width;
+        try {
+            // Capture the graph
+            const graphElement = document.querySelector('.graph-container');
+            const graphCanvas = await html2canvas(graphElement);
+            
+            // Create PDF
+            const pdf = new jsPDF();
+            let yPos = 20;
+            const lineHeight = 10;
+            const margin = 20;
+            const pageWidth = pdf.internal.pageSize.width;
 
-        // Helper function to safely convert to string and split text
-        const safeTextSplit = (text) => {
-            const str = String(text || ''); // Convert to string, use empty string if null/undefined
-            return doc.splitTextToSize(str, pageWidth - margin * 2);
-        };
+            // Helper function to safely convert to string and split text
+            const safeTextSplit = (text) => {
+                const str = String(text || ''); // Convert to string, use empty string if null/undefined
+                return pdf.splitTextToSize(str, pageWidth - margin * 2);
+            };
 
-        // Title
-        doc.setFontSize(16);
-        doc.text('Text Analysis Report', margin, yPos);
-        yPos += lineHeight * 2;
+            // Title
+            pdf.setFontSize(16);
+            pdf.text('Text Analysis Report', margin, yPos);
+            yPos += lineHeight * 2;
 
-        // Sections
-        doc.setFontSize(12);
-        Object.entries(editedAnalysis).forEach(([section, content]) => {
-            // Check if we need a new page
-            if (yPos > doc.internal.pageSize.height - margin) {
-                doc.addPage();
-                yPos = margin;
-            }
+            // Sections
+            pdf.setFontSize(12);
+            Object.entries(editedAnalysis).forEach(([section, content]) => {
+                // Check if we need a new page
+                if (yPos > pdf.internal.pageSize.height - margin) {
+                    pdf.addPage();
+                    yPos = margin;
+                }
 
-            // Section title
-            doc.setFont(undefined, 'bold');
-            doc.text(section, margin, yPos);
-            yPos += lineHeight;
+                // Section title
+                pdf.setFont(undefined, 'bold');
+                pdf.text(section, margin, yPos);
+                yPos += lineHeight;
 
-            // Section content
-            doc.setFont(undefined, 'normal');
-            if (section === 'Grammar') {
-                if (Array.isArray(content.Comments)) {
-                    doc.text('Issues Found:', margin, yPos);
-                    yPos += lineHeight;
-                    content.Comments.forEach(comment => {
-                        const lines = safeTextSplit(`• ${comment}`);
-                        doc.text(lines, margin, yPos);
+                // Section content
+                pdf.setFont(undefined, 'normal');
+                if (section === 'Grammar') {
+                    if (Array.isArray(content.Comments)) {
+                        pdf.text('Issues Found:', margin, yPos);
+                        yPos += lineHeight;
+                        content.Comments.forEach(comment => {
+                            const lines = safeTextSplit(`• ${comment}`);
+                            pdf.text(lines, margin, yPos);
+                            yPos += lineHeight * lines.length;
+                        });
+                    }
+                    
+                    if (content.CorrectedText) {
+                        yPos += lineHeight;
+                        pdf.text('Corrected Text:', margin, yPos);
+                        yPos += lineHeight;
+                        const correctedLines = safeTextSplit(content.CorrectedText);
+                        pdf.text(correctedLines, margin, yPos);
+                        yPos += lineHeight * correctedLines.length;
+                    }
+                } else if (section === 'Suggestions' && Array.isArray(content.Topics)) {
+                    content.Topics.forEach(topic => {
+                        const lines = safeTextSplit(`• ${topic}`);
+                        pdf.text(lines, margin, yPos);
                         yPos += lineHeight * lines.length;
                     });
+                } else if (content.Analysis) {
+                    const lines = safeTextSplit(content.Analysis);
+                    pdf.text(lines, margin, yPos);
+                    yPos += lineHeight * lines.length;
                 }
                 
-                if (content.CorrectedText) {
-                    yPos += lineHeight;
-                    doc.text('Corrected Text:', margin, yPos);
-                    yPos += lineHeight;
-                    const correctedLines = safeTextSplit(content.CorrectedText);
-                    doc.text(correctedLines, margin, yPos);
-                    yPos += lineHeight * correctedLines.length;
-                }
-            } else if (section === 'Suggestions' && Array.isArray(content.Topics)) {
-                content.Topics.forEach(topic => {
-                    const lines = safeTextSplit(`• ${topic}`);
-                    doc.text(lines, margin, yPos);
-                    yPos += lineHeight * lines.length;
-                });
-            } else if (content.Analysis) {
-                const lines = safeTextSplit(content.Analysis);
-                doc.text(lines, margin, yPos);
-                yPos += lineHeight * lines.length;
-            }
-            
-            yPos += lineHeight;
-        });
+                yPos += lineHeight;
+            });
 
-        doc.save('text-analysis-report.pdf');
+            // Add graph image
+            const graphImage = graphCanvas.toDataURL('image/png');
+            pdf.addPage();
+            pdf.text('Relationship Graph', 20, 20);
+            
+            // Calculate image dimensions to fit page
+            const imgWidth = 170;
+            const imgHeight = (graphCanvas.height * imgWidth) / graphCanvas.width;
+            pdf.addImage(graphImage, 'PNG', 20, 30, imgWidth, imgHeight);
+            
+            // Save PDF
+            pdf.save('analysis-report.pdf');
+        } catch (error) {
+            console.error('PDF generation error:', error);
+        }
     };
 
     const renderAnalysisSection = (title, content, type = 'default') => {
@@ -332,6 +355,7 @@ function App() {
                         {analysis && (
                             <div className="results-container fade-in">
                                 <h3>Analysis Results</h3>
+                                <AnalysisGraph analysis={analysis} />
                                 {renderAnalysisSection("Grammar", analysis.Grammar, 'grammar')}
                                 {renderAnalysisSection("Tone", analysis.Tone)}
                                 {renderAnalysisSection("Sentiment", analysis.Sentiment)}
