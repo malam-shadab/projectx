@@ -9,6 +9,7 @@ import AnalysisGraph from './components/AnalysisGraph';
 import html2canvas from 'html2canvas';
 import { scaleOrdinal } from 'd3-scale';
 import { schemeSet3 } from 'd3-scale-chromatic';
+import { rgb } from 'd3-color'; // Add this import
 
 function App() {
     const [text, setText] = useState("");
@@ -154,92 +155,75 @@ function App() {
     };
 
     const downloadAsPDF = async () => {
-        if (!editedAnalysis) return;
-
         try {
-            // Capture the graph
-            const graphElement = document.querySelector('.graph-container');
-            const graphCanvas = await html2canvas(graphElement);
-            
-            // Create PDF
             const pdf = new jsPDF();
             let yPos = 20;
-            const lineHeight = 10;
             const margin = 20;
+            const lineHeight = 7;
             const pageWidth = pdf.internal.pageSize.width;
 
-            // Helper function to safely convert to string and split text
-            const safeTextSplit = (text) => {
-                const str = String(text || ''); // Convert to string, use empty string if null/undefined
-                return pdf.splitTextToSize(str, pageWidth - margin * 2);
-            };
+            // Helper function to add section with background
+            const addColoredSection = (title, content, color) => {
+                pdf.setFillColor(...color); // RGB values
+                pdf.rect(margin - 5, yPos - 5, pageWidth - 2 * (margin - 5), 20, 'F');
+                pdf.setTextColor(0);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text(title, margin, yPos + 5);
+                yPos += 15;
 
-            // Title
-            pdf.setFontSize(16);
-            pdf.text('Text Analysis Report', margin, yPos);
-            yPos += lineHeight * 2;
-
-            // Sections
-            pdf.setFontSize(12);
-            Object.entries(editedAnalysis).forEach(([section, content]) => {
-                // Check if we need a new page
-                if (yPos > pdf.internal.pageSize.height - margin) {
-                    pdf.addPage();
-                    yPos = margin;
-                }
-
-                // Section title
-                pdf.setFont(undefined, 'bold');
-                pdf.text(section, margin, yPos);
-                yPos += lineHeight;
-
-                // Section content
-                pdf.setFont(undefined, 'normal');
-                if (section === 'Grammar') {
-                    if (Array.isArray(content.Comments)) {
-                        pdf.text('Issues Found:', margin, yPos);
-                        yPos += lineHeight;
-                        content.Comments.forEach(comment => {
-                            const lines = safeTextSplit(`• ${comment}`);
-                            pdf.text(lines, margin, yPos);
-                            yPos += lineHeight * lines.length;
-                        });
-                    }
-                    
-                    if (content.CorrectedText) {
-                        yPos += lineHeight;
-                        pdf.text('Corrected Text:', margin, yPos);
-                        yPos += lineHeight;
-                        const correctedLines = safeTextSplit(content.CorrectedText);
-                        pdf.text(correctedLines, margin, yPos);
-                        yPos += lineHeight * correctedLines.length;
-                    }
-                } else if (section === 'Suggestions' && Array.isArray(content.Topics)) {
-                    content.Topics.forEach(topic => {
-                        const lines = safeTextSplit(`• ${topic}`);
-                        pdf.text(lines, margin, yPos);
-                        yPos += lineHeight * lines.length;
-                    });
-                } else if (content.Analysis) {
-                    const lines = safeTextSplit(content.Analysis);
+                pdf.setFont('helvetica', 'normal');
+                if (typeof content === 'string') {
+                    const lines = pdf.splitTextToSize(content, pageWidth - 2 * margin);
                     pdf.text(lines, margin, yPos);
                     yPos += lineHeight * lines.length;
+                } else if (Array.isArray(content)) {
+                    content.forEach(item => {
+                        pdf.text(`• ${item}`, margin, yPos);
+                        yPos += lineHeight;
+                    });
                 }
-                
-                yPos += lineHeight;
+                yPos += 10;
+            };
+
+            // Add sections with matching colors from schemeSet3
+            Object.entries(editedAnalysis).forEach(([section, content], index) => {
+                const color = rgb(schemeSet3[index]); // Use imported rgb instead of d3.rgb
+                const rgbColor = [color.r/255, color.g/255, color.b/255];
+
+                if (yPos > pdf.internal.pageSize.height - 40) {
+                    pdf.addPage();
+                    yPos = 20;
+                }
+
+                if (section === 'Grammar') {
+                    addColoredSection(section, {
+                        comments: content.Comments,
+                        corrected: content.CorrectedText
+                    }, rgbColor);
+                } else {
+                    addColoredSection(section, content.Analysis, rgbColor);
+                }
             });
 
-            // Add graph image
-            const graphImage = graphCanvas.toDataURL('image/png');
+            // Add graph
             pdf.addPage();
-            pdf.text('Relationship Graph', 20, 20);
-            
-            // Calculate image dimensions to fit page
-            const imgWidth = 170;
-            const imgHeight = (graphCanvas.height * imgWidth) / graphCanvas.width;
-            pdf.addImage(graphImage, 'PNG', 20, 30, imgWidth, imgHeight);
-            
-            // Save PDF
+            const graphContainer = document.querySelector('.graph-container canvas');
+            const graphImage = graphContainer.toDataURL('image/png');
+            pdf.text('Relationship Graph', margin, 20);
+            pdf.addImage(graphImage, 'PNG', margin, 30, pageWidth - 2 * margin, 100);
+
+            // Add strength analysis
+            yPos = 140;
+            pdf.text('Relationship Strengths', margin, yPos);
+            yPos += 10;
+
+            const selectedNodeLinks = document.querySelector('.top-pairs-analysis');
+            if (selectedNodeLinks) {
+                const strengthsText = selectedNodeLinks.innerText;
+                const lines = pdf.splitTextToSize(strengthsText, pageWidth - 2 * margin);
+                pdf.text(lines, margin, yPos);
+            }
+
             pdf.save('analysis-report.pdf');
         } catch (error) {
             console.error('PDF generation error:', error);
