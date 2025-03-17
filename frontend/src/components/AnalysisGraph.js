@@ -31,10 +31,10 @@ const AnalysisGraph = ({ analysis }) => {
         const updateDimensions = () => {
             const container = document.querySelector('.graph-container');
             if (container) {
-                const width = Math.min(500, container.clientWidth - 20);
+                const width = container.clientWidth - 40; // Account for padding
                 setDimensions({
                     width: width,
-                    height: Math.min(300, width * 0.6)
+                    height: 400 // Match container height
                 });
             }
         };

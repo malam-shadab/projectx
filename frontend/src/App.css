@@ -387,26 +387,29 @@ input[type="file"]:hover {
 .graph-container {
   background: #ffffff;
   border-radius: 8px;
-  padding: 0.5rem;
+  padding: 1rem;
   margin: 1rem auto;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   max-width: 100%;
   position: relative;
   overflow: hidden;
+  min-height: 400px; /* Increased height */
 }
 
 .graph-container canvas {
   border-radius: 4px;
   cursor: default;
-  max-width: 100%;
-  height: auto !important;
+  width: 100% !important;
+  height: 400px !important; /* Fixed height */
 }
 
 .analysis-graph-section {
   background: #f8f9fa;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 1.5rem;
   margin: 1rem 0;
+  width: 95%;
+  margin: 1rem auto;
 }
 
 .top-pairs-analysis {
@@ -472,6 +475,19 @@ input[type="file"]:hover {
 
   .section-content {
     width: 100%;
+  }
+
+  .analysis-graph-section {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .graph-container {
+    min-height: 300px;
+  }
+
+  .graph-container canvas {
+    height: 300px !important;
   }
 }
 
