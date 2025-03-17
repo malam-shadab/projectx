@@ -631,3 +631,25 @@ input[type="file"]:hover {
         align-items: center;
     }
 }
+
+/* Analysis graph section container */
+.analysis-graph-section {
+    width: 95%;
+    margin: 1rem auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+/* Relationship strengths box */
+.top-pairs-analysis {
+    width: 95% !important;
+    margin: 1rem auto;
+    padding: 1.5rem;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}

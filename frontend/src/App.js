@@ -3,40 +3,35 @@ import axios from "axios";
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
 import { configurePdfWorker } from './pdfWorkerConfig';
 import { jsPDF } from "jspdf";
-import './App.css';
 import { BrowserRouter as Router } from 'react-router-dom';
-import AnalysisGraph from './components/AnalysisGraph';
-import html2canvas from 'html2canvas';
 import { scaleOrdinal } from 'd3-scale';
 import { schemeSet3 } from 'd3-scale-chromatic';
-import { rgb } from 'd3-color'; // Add this import
+import { rgb } from 'd3-color';
+import html2canvas from 'html2canvas';
+import AnalysisGraph from './components/AnalysisGraph';
+import './App.css';
 
-function App() {
+const App = () => {
     const [text, setText] = useState("");
     const [analysis, setAnalysis] = useState(null);
     const [error, setError] = useState(null);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [editedAnalysis, setEditedAnalysis] = useState(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
     const fileInputRef = useRef(null);
-    const graphRef = useRef();
+
+    const initializeApp = async () => {
+        try {
+            await configurePdfWorker();
+            console.log('PDF Worker initialized successfully');
+        } catch (error) {
+            console.error('PDF Worker initialization failed:', error);
+            setError('Failed to initialize PDF processor');
+        }
+    };
 
     useEffect(() => {
-        const initializeApp = async () => {
-            try {
-                await configurePdfWorker();
-                console.log('PDF Worker initialized successfully');
-            } catch (error) {
-                console.error('PDF Worker initialization failed:', error);
-                setError('Failed to initialize PDF processor');
-            }
-        };
-
         initializeApp();
-    }, []); // Empty dependency array for one-time initialization
-
-    useEffect(() => {
         return () => {
-            // Cleanup when component unmounts
             if (pdfjsLib.GlobalWorkerOptions.workerPort) {
                 pdfjsLib.GlobalWorkerOptions.workerPort.terminate();
             }
@@ -54,7 +49,6 @@ function App() {
         if (!file) return;
 
         try {
-            setError(null);
             if (file.type === 'application/pdf') {
                 const extractedText = await extractPDFText(file);
                 setText(sanitizeText(extractedText));
@@ -77,14 +71,12 @@ function App() {
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
             let fullText = '';
-
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
                 const pageText = textContent.items.map(item => item.str).join(' ');
                 fullText += pageText + '\n';
             }
-
             return fullText.trim();
         } catch (error) {
             console.error('PDF processing error:', error);
@@ -94,34 +86,27 @@ function App() {
 
     const sanitizeText = (text) => {
         if (!text) return '';
-        return text
-            .replace(/[^\x20-\x7E\s]/g, '') // Only keep printable ASCII characters and whitespace
-            .replace(/\s+/g, ' ')           // Normalize whitespace
+        return text.replace(/[^\x20-\x7E\s]/g, '') // Only keep printable ASCII characters and whitespace
+            .replace(/\s+/g, ' ') // Normalize whitespace
             .trim();
     };
 
     const analyzeText = async () => {
+        setIsAnalyzing(true);
+        setError(null);
         try {
-            setIsAnalyzing(true);
-            setError(null);
-
             console.log('Sending analysis request:', {
                 apiUrl: process.env.REACT_APP_API_URL,
                 textLength: text?.length
             });
-
             const response = await axios.post(`${process.env.REACT_APP_API_URL}/analyze`, {
-                text: text
+                text
             });
-
-            console.log('Response received:', {
+            console.log('Analysis response received:', {
                 status: response.status,
                 data: response.data
             });
-
-            // No need to parse, backend already sends parsed JSON
             setAnalysis(response.data);
-
         } catch (error) {
             console.error('Frontend error:', {
                 message: error.message,
@@ -134,9 +119,7 @@ function App() {
         }
     };
 
-    const handleAnalysisEdit = (section, value, type = 'text') => {
-        if (!editedAnalysis) return;
-        
+    const handleContentChange = (section, value, type = 'text') => {
         setEditedAnalysis(prev => {
             const updated = { ...prev };
             if (section === 'Grammar') {
@@ -157,31 +140,50 @@ function App() {
     const downloadAsPDF = async () => {
         try {
             const pdf = new jsPDF();
-            let yPos = 20;
             const margin = 20;
             const lineHeight = 7;
             const pageWidth = pdf.internal.pageSize.width;
+            let yPos = 20;
 
             const addColoredSection = (title, content, color) => {
-                // Convert RGB values to 0-1 range for PDF
-                const rgbColor = color.map(c => Math.min(c, 1));
-                
-                // Set section background color
-                pdf.setFillColor(...rgbColor);
-                pdf.rect(margin - 5, yPos - 5, pageWidth - 2 * (margin - 5), 30, 'F');
-                
-                // Set title color based on background brightness
-                const brightness = (rgbColor[0] * 299 + rgbColor[1] * 587 + rgbColor[2] * 114) / 1000;
-                pdf.setTextColor(brightness > 0.5 ? 0 : 255);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text(title, margin, yPos + 5);
-                yPos += 15;
+                // Calculate content height first
+                let contentHeight = 0;
+                if (typeof content === 'string') {
+                    const lines = pdf.splitTextToSize(content, pageWidth - 2 * margin);
+                    contentHeight = lineHeight * lines.length;
+                } else if (Array.isArray(content)) {
+                    content.forEach(item => {
+                        const lines = pdf.splitTextToSize('• ' + item, pageWidth - 2 * margin);
+                        contentHeight += lineHeight * lines.length;
+                    });
+                }
 
-                // Reset text color for content
-                pdf.setTextColor(44, 62, 80);
-                pdf.setFont('helvetica', 'normal');
+                // Set section background with padding
+                const sectionPadding = 15;
+                const totalHeight = contentHeight + sectionPadding * 2;
                 
-                // Add content in dark gray
+                // Set background color
+                const rgbColor = [
+                    Math.round(color.r),
+                    Math.round(color.g),
+                    Math.round(color.b)
+                ];
+                
+                pdf.setFillColor(rgbColor[0], rgbColor[1], rgbColor[2]);
+                pdf.setGState(new pdf.GState({ opacity: 0.1 }));
+                pdf.rect(margin - 10, yPos - 5, pageWidth - 2 * (margin - 10), totalHeight, 'F');
+                pdf.setGState(new pdf.GState({ opacity: 1 }));
+                
+                // Add title
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(44, 62, 80);
+                pdf.text(title, margin, yPos + 10);
+                yPos += 20;
+
+                // Add content
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(44, 62, 80);
+                
                 if (typeof content === 'string') {
                     const lines = pdf.splitTextToSize(content, pageWidth - 2 * margin);
                     pdf.text(lines, margin, yPos);
@@ -197,10 +199,9 @@ function App() {
                 yPos += 10;
             };
 
-            // Add sections with proper colors
+            // Add sections with colors
             Object.entries(editedAnalysis).forEach(([section, content], index) => {
                 const color = rgb(schemeSet3[index]);
-                const rgbColor = [color.r/255, color.g/255, color.b/255];
                 
                 if (yPos > pdf.internal.pageSize.height - 40) {
                     pdf.addPage();
@@ -211,20 +212,65 @@ function App() {
                     section === 'Grammar' 
                         ? [...(content.Comments || []), '', content.CorrectedText] 
                         : content.Analysis || content.Topics || [], 
-                    rgbColor
+                    color
                 );
             });
 
-            // Generate timestamp string
+            // Add new page for graph and strengths
+            pdf.addPage();
+            yPos = 20;
+
+            // Add graph heading
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(44, 62, 80);
+            pdf.text('Relationship Graph', margin, yPos);
+            yPos += 15;
+
+            // Capture and add graph
+            const graphContainer = document.querySelector('.graph-container canvas');
+            if (graphContainer) {
+                try {
+                    const graphImage = await html2canvas(graphContainer);
+                    const imgData = graphImage.toDataURL('image/png');
+                    const imgWidth = pageWidth - (2 * margin);
+                    const imgHeight = (graphImage.height * imgWidth) / graphImage.width;
+                    
+                    pdf.addImage(imgData, 'PNG', margin, yPos, imgWidth, imgHeight);
+                    yPos += imgHeight + 20;
+                } catch (error) {
+                    console.error('Error capturing graph:', error);
+                }
+            }
+
+            // Add strength analysis
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('Relationship Strengths', margin, yPos);
+            yPos += 15;
+
+            // Capture and add strengths
+            const strengthsContainer = document.querySelector('.top-pairs-analysis');
+            if (strengthsContainer) {
+                pdf.setFont('helvetica', 'normal');
+                const strengths = Array.from(strengthsContainer.querySelectorAll('li'))
+                    .map(li => '• ' + li.textContent.trim());
+                
+                strengths.forEach(strength => {
+                    const lines = pdf.splitTextToSize(strength, pageWidth - 2 * margin);
+                    pdf.text(lines, margin, yPos);
+                    yPos += lineHeight * lines.length;
+                });
+            }
+
+            // Generate timestamp and save
             const timestamp = new Date().toISOString()
                 .replace(/[:.]/g, '-')
                 .replace('T', '_')
-                .slice(0, -5); // Remove milliseconds and timezone
+                .slice(0, -5);
 
-            // Save PDF with timestamp
             pdf.save(`analysis-report_${timestamp}.pdf`);
         } catch (error) {
             console.error('PDF generation error:', error);
+            setError('Failed to generate PDF');
         }
     };
 
@@ -249,7 +295,6 @@ function App() {
             } else {
                 updatedContent.Analysis = e.target.value;
             }
-            
             setEditedAnalysis({
                 ...editedAnalysis,
                 [title]: updatedContent
@@ -265,7 +310,7 @@ function App() {
                 <div className="section-content">
                     {type === 'grammar' ? (
                         <>
-                            <textarea
+                            <textarea 
                                 className="editable-content"
                                 data-type="comment"
                                 value={content.Comments?.join('\n')}
@@ -378,6 +423,6 @@ function App() {
             </div>
         </Router>
     );
-}
+};
 
 export default App;
