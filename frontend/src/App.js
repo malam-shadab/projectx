@@ -162,77 +162,67 @@ function App() {
             const lineHeight = 7;
             const pageWidth = pdf.internal.pageSize.width;
 
-            // Helper function to add section with background
             const addColoredSection = (title, content, color) => {
-                // Set background color with opacity
-                pdf.setFillColor(...color);
-                pdf.rect(margin - 5, yPos - 5, pageWidth - 2 * (margin - 5), 20, 'F');
+                // Convert RGB values to 0-1 range for PDF
+                const rgbColor = color.map(c => Math.min(c, 1));
                 
-                // Set text color to match section color but darker
-                const textColor = color.map(c => c * 0.7); // Darken the color for text
-                pdf.setTextColor(...textColor);
+                // Set section background color
+                pdf.setFillColor(...rgbColor);
+                pdf.rect(margin - 5, yPos - 5, pageWidth - 2 * (margin - 5), 30, 'F');
                 
+                // Set title color based on background brightness
+                const brightness = (rgbColor[0] * 299 + rgbColor[1] * 587 + rgbColor[2] * 114) / 1000;
+                pdf.setTextColor(brightness > 0.5 ? 0 : 255);
                 pdf.setFont('helvetica', 'bold');
                 pdf.text(title, margin, yPos + 5);
                 yPos += 15;
 
                 // Reset text color for content
-                pdf.setTextColor(44, 62, 80); // Dark gray color for content
+                pdf.setTextColor(44, 62, 80);
                 pdf.setFont('helvetica', 'normal');
                 
+                // Add content in dark gray
                 if (typeof content === 'string') {
                     const lines = pdf.splitTextToSize(content, pageWidth - 2 * margin);
                     pdf.text(lines, margin, yPos);
                     yPos += lineHeight * lines.length;
                 } else if (Array.isArray(content)) {
                     content.forEach(item => {
-                        pdf.text(`• ${item}`, margin, yPos);
-                        yPos += lineHeight;
+                        const bulletPoint = '• ' + item;
+                        const lines = pdf.splitTextToSize(bulletPoint, pageWidth - 2 * margin);
+                        pdf.text(lines, margin, yPos);
+                        yPos += lineHeight * lines.length;
                     });
                 }
                 yPos += 10;
             };
 
-            // Add sections with matching colors from schemeSet3
+            // Add sections with proper colors
             Object.entries(editedAnalysis).forEach(([section, content], index) => {
-                const color = rgb(schemeSet3[index]); // Use imported rgb instead of d3.rgb
+                const color = rgb(schemeSet3[index]);
                 const rgbColor = [color.r/255, color.g/255, color.b/255];
-
+                
                 if (yPos > pdf.internal.pageSize.height - 40) {
                     pdf.addPage();
                     yPos = 20;
                 }
-
-                if (section === 'Grammar') {
-                    addColoredSection(section, {
-                        comments: content.Comments,
-                        corrected: content.CorrectedText
-                    }, rgbColor);
-                } else {
-                    addColoredSection(section, content.Analysis, rgbColor);
-                }
+                
+                addColoredSection(section, 
+                    section === 'Grammar' 
+                        ? [...(content.Comments || []), '', content.CorrectedText] 
+                        : content.Analysis || content.Topics || [], 
+                    rgbColor
+                );
             });
 
-            // Add graph
-            pdf.addPage();
-            const graphContainer = document.querySelector('.graph-container canvas');
-            const graphImage = graphContainer.toDataURL('image/png');
-            pdf.text('Relationship Graph', margin, 20);
-            pdf.addImage(graphImage, 'PNG', margin, 30, pageWidth - 2 * margin, 100);
+            // Generate timestamp string
+            const timestamp = new Date().toISOString()
+                .replace(/[:.]/g, '-')
+                .replace('T', '_')
+                .slice(0, -5); // Remove milliseconds and timezone
 
-            // Add strength analysis
-            yPos = 140;
-            pdf.text('Relationship Strengths', margin, yPos);
-            yPos += 10;
-
-            const selectedNodeLinks = document.querySelector('.top-pairs-analysis');
-            if (selectedNodeLinks) {
-                const strengthsText = selectedNodeLinks.innerText;
-                const lines = pdf.splitTextToSize(strengthsText, pageWidth - 2 * margin);
-                pdf.text(lines, margin, yPos);
-            }
-
-            pdf.save('analysis-report.pdf');
+            // Save PDF with timestamp
+            pdf.save(`analysis-report_${timestamp}.pdf`);
         } catch (error) {
             console.error('PDF generation error:', error);
         }
@@ -346,12 +336,12 @@ function App() {
                                 >
                                     Upload Document
                                 </button>
-                                <input
-                                    type="file"
-                                    ref={fileInputRef}
-                                    onChange={handleFileUpload}
-                                    accept=".txt,.pdf"
-                                    style={{ display: 'none' }}
+                                <input 
+                                    type="file" 
+                                    ref={fileInputRef} 
+                                    onChange={handleFileUpload} 
+                                    accept=".txt,.pdf" 
+                                    style={{ display: 'none' }} 
                                 />
                             </div>
                         </div>

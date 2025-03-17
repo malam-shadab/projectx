@@ -185,20 +185,25 @@ input[type="number"]::-webkit-outer-spin-button {
   flex-direction: column;
   align-items: center;
   width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Input text block styling */
 .text-input {
-    width: 100%;
+    width: 95% !important;
     min-height: 150px;
-    padding: 1.5rem;
+    padding: 1.2rem;
     border-radius: 6px;
     border: 1px solid rgba(0, 0, 0, 0.1);
     background: #ffffff;
-    font-size: 1rem;
+    font-size: 0.95rem;
     line-height: 1.6;
-    resize: vertical;
-    margin: 1rem 0;
+    margin: 1rem auto;
 }
 
 .text-input:focus {
@@ -252,6 +257,7 @@ input[type="number"]::-webkit-outer-spin-button {
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-sizing: border-box;
 }
 
 /* Dynamic section colors using the same d3 color scheme */
@@ -281,10 +287,17 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* Section content container */
 .section-content {
-    width: 95%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+/* Text boxes */
+.editable-content {
+    width: 95% !important;
+    margin: 0.5rem auto;
+    box-sizing: border-box;
 }
 
 .section-content ul {
@@ -301,7 +314,8 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .input-controls {
-  width: 100%;
+  width: 95%;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -391,6 +405,9 @@ input[type="file"]:hover {
   position: relative;
   overflow: hidden;
   min-height: 400px; /* Increased height */
+  width: 95%;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .graph-container canvas {
@@ -407,10 +424,14 @@ input[type="file"]:hover {
   margin: 1rem 0;
   width: 95%;
   margin: 1rem auto;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-sizing: border-box;
 }
 
 .top-pairs-analysis {
-  margin-top: 1rem;
+  width: 95%;
+  margin: 1rem auto;
   padding: 1rem;
   background: #ffffff;
   border-radius: 4px;
