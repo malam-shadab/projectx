@@ -45,15 +45,22 @@ const AnalysisGraph = ({ analysis }) => {
         return () => window.removeEventListener('resize', updateDimensions);
     }, []);
 
-    // Add to existing useEffect
+    // Replace the existing touch event useEffect
     useEffect(() => {
         const container = document.querySelector('.graph-container');
         if (container) {
-            container.addEventListener('touchstart', (e) => {
-                if (e.touches.length === 1) {
-                    e.preventDefault(); // Prevent default only for single touch
-                }
-            }, { passive: false });
+            const isMobile = 'ontouchstart' in window;
+            
+            if (isMobile) {
+                const touchHandler = (e) => {
+                    if (e.touches.length === 1) {
+                        e.preventDefault();
+                    }
+                };
+                
+                container.addEventListener('touchstart', touchHandler, { passive: false });
+                return () => container.removeEventListener('touchstart', touchHandler);
+            }
         }
     }, []);
 
@@ -181,7 +188,8 @@ const AnalysisGraph = ({ analysis }) => {
                         // Define clickable area that moves with the node
                         ctx.fillStyle = color;
                         ctx.beginPath();
-                        ctx.arc(node.x, node.y, node.val * 0.5, 0, 2 * Math.PI);
+                        const clickRadius = 'ontouchstart' in window ? node.val * 1.5 : node.val;
+                        ctx.arc(node.x, node.y, clickRadius, 0, 2 * Math.PI);
                         ctx.fill();
                     }}
                     onNodeClick={handleNodeClick}

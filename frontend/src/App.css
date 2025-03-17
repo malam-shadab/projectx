@@ -191,6 +191,13 @@ input[type="number"]::-webkit-outer-spin-button {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Input text block styling */
@@ -258,6 +265,14 @@ input[type="number"]::-webkit-outer-spin-button {
     flex-direction: column;
     align-items: center;
     box-sizing: border-box;
+    width: 95%;
+    margin: 1rem auto;
+    padding: 1.5rem;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
 }
 
 /* Dynamic section colors using the same d3 color scheme */
@@ -291,12 +306,25 @@ input[type="number"]::-webkit-outer-spin-button {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 95%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* Text boxes */
 .editable-content {
     width: 95% !important;
     margin: 0.5rem auto;
+    box-sizing: border-box;
+    width: 95% !important;
+    margin: 0.75rem auto;
+    padding: 1.2rem;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    font-size: 0.95rem;
+    line-height: 1.6;
     box-sizing: border-box;
 }
 
@@ -409,6 +437,14 @@ input[type="file"]:hover {
   margin: 0 auto;
   box-sizing: border-box;
   aspect-ratio: 4/3;
+  width: 95%;
+  margin: 1rem auto;
+  padding: 1rem;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  aspect-ratio: 4/3;
+  box-sizing: border-box;
 }
 
 .graph-container canvas {
@@ -429,6 +465,14 @@ input[type="file"]:hover {
   padding: 1.5rem;
   border-radius: 8px;
   box-sizing: border-box;
+  width: 95%;
+  margin: 1rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 1.5rem;
 }
 
 .top-pairs-analysis {
@@ -437,6 +481,12 @@ input[type="file"]:hover {
   padding: 1rem;
   background: #ffffff;
   border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  width: 95% !important;
+  margin: 1rem auto;
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
@@ -482,6 +532,9 @@ input[type="file"]:hover {
     width: 100%;
     padding: 1rem;
     margin: 0.5rem 0;
+    width: 100%;
+    padding: 1rem;
+    margin: 0.5rem auto;
   }
 
   .text-input {
@@ -506,6 +559,9 @@ input[type="file"]:hover {
     min-height: 300px;
     aspect-ratio: 1/1;
     padding: 0.5rem;
+    width: 90%;
+    padding: 0.5rem;
+    aspect-ratio: 1/1;
   }
 
   .graph-container canvas {
@@ -532,6 +588,23 @@ input[type="file"]:hover {
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+
+  .section-content {
+    width: 100%;
+  }
+
+  .text-input,
+  .editable-content {
+    width: 90% !important;
+    padding: 1rem;
+    margin: 0.5rem auto;
+  }
+
+  .top-pairs-analysis {
+    width: 90%;
+    margin: 1rem auto;
+    padding: 1rem;
   }
 }
 
