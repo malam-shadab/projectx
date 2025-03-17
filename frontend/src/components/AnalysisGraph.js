@@ -24,17 +24,18 @@ const AnalysisGraph = ({ analysis }) => {
     // Add responsive sizing
     const [dimensions, setDimensions] = useState({
         width: 500,
-        height: 300
+        height: 500
     });
 
     useEffect(() => {
         const updateDimensions = () => {
             const container = document.querySelector('.graph-container');
             if (container) {
-                const width = container.clientWidth - 40; // Account for padding
+                const width = container.clientWidth;
+                const height = container.clientHeight;
                 setDimensions({
                     width: width,
-                    height: 400 // Match container height
+                    height: height
                 });
             }
         };
@@ -42,6 +43,18 @@ const AnalysisGraph = ({ analysis }) => {
         updateDimensions();
         window.addEventListener('resize', updateDimensions);
         return () => window.removeEventListener('resize', updateDimensions);
+    }, []);
+
+    // Add to existing useEffect
+    useEffect(() => {
+        const container = document.querySelector('.graph-container');
+        if (container) {
+            container.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    e.preventDefault(); // Prevent default only for single touch
+                }
+            }, { passive: false });
+        }
     }, []);
 
     const { nodes, links, topPairs } = useMemo(() => {
@@ -133,6 +146,8 @@ const AnalysisGraph = ({ analysis }) => {
             <div className="graph-container">
                 <ForceGraph2D
                     graphData={{ nodes, links }}
+                    width={dimensions.width}
+                    height={dimensions.height}
                     nodeRelSize={NODE_SIZE}
                     linkWidth={link => link.width}
                     linkColor={link => link.highlighted ? '#2ecc71' : '#95a5a6'}
@@ -169,24 +184,14 @@ const AnalysisGraph = ({ analysis }) => {
                         ctx.arc(node.x, node.y, node.val * 0.5, 0, 2 * Math.PI);
                         ctx.fill();
                     }}
-                    onNodeHover={(node) => {
-                        // Change cursor and draw label only on hover
-                        document.querySelector('.graph-container canvas').style.cursor = node ? 'pointer' : 'default';
-                        if (node) {
-                            const ctx = document.querySelector('.graph-container canvas').getContext('2d');
-                            ctx.font = '3px Arial';
-                            ctx.fillStyle = '#2c3e50';
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'middle';
-                            ctx.fillText(node.name, node.x, node.y);
-                        }
-                    }}
                     onNodeClick={handleNodeClick}
-                    width={dimensions.width}
-                    height={dimensions.height}
                     d3VelocityDecay={0.3}
                     cooldownTime={2000}
-                    backgroundColor="#ffffff"
+                    enableNodeDrag={true}
+                    enableZoom={true}
+                    enablePanInteraction={true}
+                    minZoom={0.5}
+                    maxZoom={2}
                 />
             </div>
             

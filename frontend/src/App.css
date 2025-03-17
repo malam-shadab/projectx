@@ -408,6 +408,7 @@ input[type="file"]:hover {
   width: 95%;
   margin: 0 auto;
   box-sizing: border-box;
+  aspect-ratio: 4/3;
 }
 
 .graph-container canvas {
@@ -415,6 +416,7 @@ input[type="file"]:hover {
   cursor: default;
   width: 100% !important;
   height: 400px !important; /* Fixed height */
+  touch-action: manipulation;
 }
 
 .analysis-graph-section {
@@ -502,6 +504,8 @@ input[type="file"]:hover {
 
   .graph-container {
     min-height: 300px;
+    aspect-ratio: 1/1;
+    padding: 0.5rem;
   }
 
   .graph-container canvas {
