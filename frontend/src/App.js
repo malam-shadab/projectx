@@ -293,6 +293,99 @@ const App = () => {
         }
     };
 
+    const downloadAsHTML = () => {
+        if (!analysis || !editedAnalysis) {
+            setError('No analysis data to export');
+            return;
+        }
+
+        try {
+            const timestamp = new Date().toISOString()
+                .replace(/[:.]/g, '-')
+                .replace('T', '_')
+                .slice(0, -5);
+            
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Analysis Report</title>
+                    <script src="https://unpkg.com/d3@7"></script>
+                    <script src="https://unpkg.com/force-graph"></script>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 2rem; background: #f5f6fa; }
+                        .section { margin: 1rem 0; padding: 1.5rem; border-radius: 8px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                        h2 { color: #2c3e50; }
+                        #graph { 
+                            width: 800px;
+                            height: 600px;
+                            margin: 2rem auto;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            background: #fff;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1 style="text-align: center;">Analysis Report</h1>
+                    <div id="graph"></div>
+                    <script>
+                        const graphData = {
+                            nodes: ${JSON.stringify(analysis.nodes)},
+                            links: ${JSON.stringify(analysis.links)}
+                        };
+
+                        const elem = document.getElementById('graph');
+                        const Graph = ForceGraph()(elem)
+                            .graphData(graphData)
+                            .nodeId('id')
+                            .nodeVal(d => d.value || 10)
+                            .nodeLabel('id')
+                            .nodeColor(() => '#1f77b4')
+                            .linkColor(() => '#999')
+                            .linkWidth(link => Math.sqrt(link.value || 1))
+                            .d3Force('charge', d3.forceManyBody().strength(-100))
+                            .d3Force('center', d3.forceCenter())
+                            .d3Force('link', d3.forceLink().id(d => d.id));
+                    </script>
+
+                    <div class="results">
+                        ${Object.entries(editedAnalysis).map(([section, content]) => `
+                            <div class="section">
+                                <h2>${section}</h2>
+                                ${section === 'Grammar' 
+                                    ? `<h3>Comments:</h3>
+                                       <ul>${content.Comments?.map(c => `<li>${c}</li>`).join('')}</ul>
+                                       <h3>Corrected Text:</h3>
+                                       <p>${content.CorrectedText}</p>`
+                                    : Array.isArray(content.Topics)
+                                        ? `<ul>${content.Topics?.map(t => `<li>${t}</li>`).join('')}</ul>`
+                                        : `<p>${content.Analysis || ''}</p>`
+                                }
+                            </div>
+                        `).join('')}
+                    </div>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `analysis-report_${timestamp}.html`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+        } catch (error) {
+            console.error('HTML generation error:', error);
+            setError('Failed to generate HTML report');
+        }
+    };
+
     const renderAnalysisSection = (title, content, type = 'default') => {
         if (!content || !editedAnalysis) return null;
         
@@ -429,12 +522,20 @@ const App = () => {
                                 {renderAnalysisSection("Awards and Presentations", analysis["Awards and Presentations"])}
                                 {renderAnalysisSection("Technical Skills", analysis["Technical Skills"])}
                                 {renderAnalysisSection("Suggestions", analysis.Suggestions, 'suggestions')}
-                                <button 
-                                    onClick={downloadAsPDF}
-                                    className="download-btn"
-                                >
-                                    Download Report as PDF
-                                </button>
+                                <div className="download-buttons">
+                                    <button 
+                                        onClick={downloadAsPDF}
+                                        className="download-btn"
+                                    >
+                                        Download as PDF
+                                    </button>
+                                    <button 
+                                        onClick={downloadAsHTML}
+                                        className="download-btn"
+                                    >
+                                        Download as HTML
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
