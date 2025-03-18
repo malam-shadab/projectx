@@ -91,6 +91,25 @@ const App = () => {
             .trim();
     };
 
+    const analyzeWithRetry = async (text, maxRetries = 3, delay = 2000) => {
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                const response = await axios.post(
+                    'https://projectx-api-malam-shadab-f485c3fe49cc.herokuapp.com/', 
+                    { text }
+                );
+                return response.data;
+            } catch (error) {
+                if (error.response?.status === 429 && i < maxRetries - 1) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                    continue;
+                }
+                throw error;
+            }
+        }
+    };
+
     const analyzeText = async () => {
         setIsAnalyzing(true);
         setError(null);
