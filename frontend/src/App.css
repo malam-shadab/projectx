@@ -730,3 +730,30 @@ input[type="file"]:hover {
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
+
+/* Graph container and strength analysis alignment */
+.graph-container,
+.top-pairs-analysis {
+    width: 95%;
+    margin: 1rem auto;
+    box-sizing: border-box;
+}
+
+/* Mobile specific fixes */
+@media screen and (max-width: 768px) {
+    .analysis-section,
+    .analysis-graph-section,
+    .text-input,
+    .editable-content,
+    .graph-container,
+    .top-pairs-analysis {
+        width: 90%;
+        margin: 0.5rem auto;
+        box-sizing: border-box;
+    }
+
+    .section-content {
+        width: 90%;
+        margin: 0 auto;
+    }
+}
