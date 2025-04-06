@@ -4,7 +4,6 @@ import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
 import { configurePdfWorker } from './pdfWorkerConfig';
 import { jsPDF } from "jspdf";
 import { BrowserRouter as Router } from 'react-router-dom';
-import { scaleOrdinal } from 'd3-scale';
 import { schemeSet3 } from 'd3-scale-chromatic';
 import { rgb } from 'd3-color';
 import html2canvas from 'html2canvas';
@@ -95,18 +94,15 @@ const App = () => {
             .trim();
     };
 
-    const analyzeWithRetry = async (text, maxRetries = 3, delay = 2000) => {
+    const handleRetry = async (fn, maxRetries = 3, initialDelay = 2000) => {
+        let currentDelay = initialDelay;
         for (let i = 0; i < maxRetries; i++) {
             try {
-                const response = await axios.post(
-                    'https://projectx-api-malam-shadab-f485c3fe49cc.herokuapp.com/', 
-                    { text }
-                );
-                return response.data;
+                return await fn();
             } catch (error) {
                 if (error.response?.status === 429 && i < maxRetries - 1) {
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    delay *= 2;
+                    await new Promise(resolve => setTimeout(resolve, currentDelay));
+                    currentDelay *= 2;
                     continue;
                 }
                 throw error;
@@ -142,22 +138,19 @@ const App = () => {
         }
     };
 
-    const handleContentChange = (section, value, type = 'text') => {
-        setEditedAnalysis(prev => {
-            const updated = { ...prev };
-            if (section === 'Grammar') {
-                if (type === 'comments') {
-                    updated.Grammar.Comments = value;
-                } else {
-                    updated.Grammar.CorrectedText = value;
-                }
-            } else if (section === 'Suggestions') {
-                updated["Suggestions"].Topics = value;
-            } else {
-                updated[section].Analysis = value;
-            }
-            return updated;
-        });
+    const handleContentChange = (event) => {
+        const { value, dataset } = event.target;
+        const section = dataset.section;
+        const type = dataset.type;
+
+        setEditedAnalysis(prev => ({
+            ...prev,
+            [section]: type === 'comment' 
+                ? { ...prev[section], Comments: value.split('\n') }
+                : type === 'topics'
+                    ? { ...prev[section], Topics: value.split('\n') }
+                    : { ...prev[section], Analysis: value }
+        }));
     };
 
     const downloadAsPDF = async () => {

@@ -15,8 +15,7 @@ const AnalysisGraph = ({ analysis }) => {
     const [selectedNode, setSelectedNode] = useState(null);
     const [selectedNodeLinks, setSelectedNodeLinks] = useState([]);
     const SIMILARITY_THRESHOLD = 0.1;
-    const NODE_SIZE = 12;
-    const TEXT_SIZE = 3;
+    const NODE_SIZE = 8;
     const EDGE_TEXT_SIZE = 2;
     const GLOW_STRENGTH = 35; // Increased glow strength
     const HIGHLIGHT_WIDTH_MULTIPLIER = 5; // Increased highlight width
@@ -64,8 +63,8 @@ const AnalysisGraph = ({ analysis }) => {
         }
     }, []);
 
-    const { nodes, links, topPairs } = useMemo(() => {
-        if (!analysis) return { nodes: [], links: [], topPairs: [] };
+    const { nodes, links } = useMemo(() => {
+        if (!analysis) return { nodes: [], links: [] };
 
         const colorScale = scaleOrdinal(schemeSet3);
         
