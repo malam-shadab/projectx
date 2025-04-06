@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import ForceGraph2D from 'react-force-graph-2d';
 import { scaleOrdinal } from 'd3-scale';
 import { schemeSet3 } from 'd3-scale-chromatic';
@@ -222,6 +223,29 @@ const AnalysisGraph = ({ analysis }) => {
             </div>
         </div>
     );
+};
+
+// Add PropTypes validation
+AnalysisGraph.propTypes = {
+    analysis: PropTypes.shape({
+        nodes: PropTypes.arrayOf(PropTypes.shape({
+            id: PropTypes.string.isRequired,
+            value: PropTypes.number
+        })),
+        links: PropTypes.arrayOf(PropTypes.shape({
+            source: PropTypes.string.isRequired,
+            target: PropTypes.string.isRequired,
+            value: PropTypes.number
+        }))
+    })
+};
+
+// Add default props
+AnalysisGraph.defaultProps = {
+    analysis: {
+        nodes: [],
+        links: []
+    }
 };
 
 export default AnalysisGraph;
