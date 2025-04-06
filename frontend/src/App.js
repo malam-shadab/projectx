@@ -479,6 +479,12 @@ const App = () => {
         <Router basename="/projectx">
             <div className="App">
                 <div className="App-header">
+                    {/* Add logo ribbons */}
+                    <div className="logo-ribbons">
+                        <div className="ribbon ribbon-1"></div>
+                        <div className="ribbon ribbon-2"></div>
+                        <div className="ribbon ribbon-3"></div>
+                    </div>
                     {user && (
                         <div className="user-controls">
                             <span className="user-email">{user.email}</span>

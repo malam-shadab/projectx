@@ -37,6 +37,11 @@ const Auth = () => {
 
     return (
         <div className="auth-container">
+            <div className="logo-ribbons">
+                <div className="ribbon ribbon-1"></div>
+                <div className="ribbon ribbon-2"></div>
+                <div className="ribbon ribbon-3"></div>
+            </div>
             <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
             <form onSubmit={handleEmailAuth}>
                 <input

@@ -998,8 +998,9 @@ input[type="file"]:hover {
     width: 90%;
     margin: 0 auto;
     display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1rem;
     padding: 0.75rem;
     box-sizing: border-box;
 }
@@ -1013,19 +1014,32 @@ input[type="file"]:hover {
     cursor: pointer;
     font-size: 0.9rem;
     transition: background 0.3s ease;
+    margin-bottom: 1rem;
 }
 
 .user-email {
-    position: fixed;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
     color: #fff;
     font-size: 0.9rem;
     background: rgba(40, 44, 52, 0.9);
     padding: 0.5rem 1rem;
     border-radius: 4px;
-    text-align: center;
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+    .user-email {
+        position: fixed;
+        bottom: 1rem;
+        width: auto;
+        max-width: 90%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
 /* Mobile adjustments */
@@ -1045,4 +1059,35 @@ input[type="file"]:hover {
         transform: translateX(-50%);
         z-index: 100;
     }
+}
+
+/* Logo ribbons styling */
+.logo-ribbons {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.ribbon {
+    height: 4px;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.ribbon-1 {
+    width: 100%;
+    background: #1a1a1a;
+}
+
+.ribbon-2 {
+    width: 50%;
+    background: #404040;
+}
+
+.ribbon-3 {
+    width: 25%;
+    background: #808080;
 }
