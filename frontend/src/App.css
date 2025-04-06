@@ -966,15 +966,25 @@ input[type="file"]:hover {
         position: relative;
         top: 0;
         right: 0;
-        width: 100%;
-        margin-bottom: 1rem;
+        width: 90%;  /* Match container width */
+        margin: 0 auto 1rem auto;  /* Center with auto margins */
         background: rgba(40, 44, 52, 0.9);
         padding: 0.75rem;
         border-radius: 4px 4px 0 0;
         justify-content: flex-end;
+        box-sizing: border-box;
+    }
+
+    .user-email {
+        color: #fff;
+        font-size: 0.9rem;
+        margin-right: 1rem;  /* Add spacing between email and button */
     }
 
     .App-header {
         padding-top: 0;
+        width: 90%;  /* Match container width */
+        margin: 0 auto;
+        box-sizing: border-box;
     }
 }
