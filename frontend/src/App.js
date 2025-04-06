@@ -94,14 +94,15 @@ const App = () => {
             .trim();
     };
 
-    const handleRetry = async (fn, maxRetries = 3, initialDelay = 2000) => {
+    const handleRetryWithDelay = async (fn, maxRetries = 3, initialDelay = 2000) => {
         let currentDelay = initialDelay;
         for (let i = 0; i < maxRetries; i++) {
             try {
                 return await fn();
             } catch (error) {
+                const delayToUse = currentDelay;
                 if (error.response?.status === 429 && i < maxRetries - 1) {
-                    await new Promise(resolve => setTimeout(resolve, currentDelay));
+                    await new Promise(resolve => setTimeout(resolve, delayToUse));
                     currentDelay *= 2;
                     continue;
                 }

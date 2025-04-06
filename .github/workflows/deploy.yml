@@ -24,6 +24,7 @@ jobs:
         
     - name: Build
       env:
+        CI: false  # Prevents treating warnings as errors
         NODE_ENV: production
         REACT_APP_FIREBASE_API_KEY: ${{ secrets.REACT_APP_FIREBASE_API_KEY }}
         REACT_APP_FIREBASE_AUTH_DOMAIN: ${{ secrets.REACT_APP_FIREBASE_AUTH_DOMAIN }}

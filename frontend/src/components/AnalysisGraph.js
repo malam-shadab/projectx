@@ -148,6 +148,33 @@ const AnalysisGraph = ({ analysis }) => {
 
     if (!analysis) return null;
 
+    const nodeCanvasObject = (node, ctx) => {
+        const x = node.x || 0;
+        const y = node.y || 0;
+        const radius = node.val * 0.5;
+
+        // Draw node circle with glow if selected
+        ctx.beginPath();
+        if (selectedNode?.id === node.id) {
+            ctx.shadowColor = node.color;
+            ctx.shadowBlur = GLOW_STRENGTH;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        }
+        ctx.fillStyle = node.color;
+        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Always draw node label
+        const label = node.name;
+        ctx.font = `${EDGE_TEXT_SIZE}px Arial`;
+        ctx.fillStyle = '#2c3e50';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, x, y);
+    };
+
     return (
         <div className="analysis-graph-section">
             <div className="graph-container">
@@ -158,32 +185,7 @@ const AnalysisGraph = ({ analysis }) => {
                     nodeRelSize={NODE_SIZE}
                     linkWidth={link => link.width}
                     linkColor={link => link.highlighted ? '#2ecc71' : '#95a5a6'}
-                    nodeCanvasObject={(node, ctx, globalScale) => {
-                        const x = node.x || 0;
-                        const y = node.y || 0;
-                        const radius = node.val * 0.5;
-
-                        // Draw node circle with glow if selected
-                        ctx.beginPath();
-                        if (selectedNode?.id === node.id) {
-                            ctx.shadowColor = node.color;
-                            ctx.shadowBlur = GLOW_STRENGTH;
-                            ctx.shadowOffsetX = 0;
-                            ctx.shadowOffsetY = 0;
-                        }
-                        ctx.fillStyle = node.color;
-                        ctx.arc(x, y, radius, 0, 2 * Math.PI);
-                        ctx.fill();
-                        ctx.shadowBlur = 0;
-
-                        // Always draw node label
-                        const label = node.name;
-                        ctx.font = `${EDGE_TEXT_SIZE}px Arial`;
-                        ctx.fillStyle = '#2c3e50';
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillText(label, x, y);
-                    }}
+                    nodeCanvasObject={nodeCanvasObject}
                     nodePointerAreaPaint={(node, color, ctx) => {
                         // Define clickable area that moves with the node
                         ctx.fillStyle = color;
