@@ -463,6 +463,10 @@ const App = () => {
         );
     };
 
+    const handleLogout = () => {
+        auth.signOut();
+    };
+
     if (loading) {
         return <div className="loading">Loading...</div>;
     }
@@ -475,6 +479,17 @@ const App = () => {
         <Router basename="/projectx">
             <div className="App">
                 <div className="App-header">
+                    {user && (
+                        <div className="user-controls">
+                            <span className="user-email">{user.email}</span>
+                            <button 
+                                onClick={handleLogout}
+                                className="logout-btn"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    )}
                     <h1>Text Analysis App</h1>
                     <div className="analysis-container">
                         <div className="input-controls">
