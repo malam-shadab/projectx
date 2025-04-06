@@ -10,8 +10,12 @@ import { rgb } from 'd3-color';
 import html2canvas from 'html2canvas';
 import AnalysisGraph from './components/AnalysisGraph';
 import './App.css';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from './firebase/config';
+import Auth from './components/Auth';
 
 const App = () => {
+    const [user, loading] = useAuthState(auth);
     const [text, setText] = useState("");
     const [analysis, setAnalysis] = useState(null);
     const [error, setError] = useState(null);
@@ -464,6 +468,14 @@ const App = () => {
             </div>
         );
     };
+
+    if (loading) {
+        return <div className="loading">Loading...</div>;
+    }
+
+    if (!user) {
+        return <Auth />;
+    }
 
     return (
         <Router basename="/projectx">
