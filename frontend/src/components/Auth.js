@@ -6,6 +6,7 @@ import {
     GoogleAuthProvider,
     signInWithPopup
 } from 'firebase/auth';
+import LogoRibbons from './LogoRibbons';
 
 const Auth = () => {
     const [email, setEmail] = useState('');
@@ -37,11 +38,7 @@ const Auth = () => {
 
     return (
         <div className="auth-container">
-            <div className="logo-ribbons">
-                <div className="ribbon ribbon-1"></div>
-                <div className="ribbon ribbon-2"></div>
-                <div className="ribbon ribbon-3"></div>
-            </div>
+            <LogoRibbons />
             <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
             <form onSubmit={handleEmailAuth}>
                 <input

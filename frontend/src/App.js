@@ -12,6 +12,7 @@ import './App.css';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from './firebase/config';
 import Auth from './components/Auth';
+import LogoRibbons from './LogoRibbons';
 
 const App = () => {
     const [user, loading] = useAuthState(auth);
@@ -479,12 +480,7 @@ const App = () => {
         <Router basename="/projectx">
             <div className="App">
                 <div className="App-header">
-                    {/* Add logo ribbons */}
-                    <div className="logo-ribbons">
-                        <div className="ribbon ribbon-1"></div>
-                        <div className="ribbon ribbon-2"></div>
-                        <div className="ribbon ribbon-3"></div>
-                    </div>
+                    <LogoRibbons />
                     {user && (
                         <div className="user-controls">
                             <span className="user-email">{user.email}</span>
