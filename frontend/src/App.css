@@ -889,6 +889,16 @@ input[type="file"]:hover {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
+    background: white;
+    color: #2c3e50;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.auth-container input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
 .auth-container button {
@@ -948,4 +958,23 @@ input[type="file"]:hover {
 
 .logout-btn:hover {
     background: #c0392b;
+}
+
+/* Fix user controls mobile alignment */
+@media screen and (max-width: 768px) {
+    .user-controls {
+        position: relative;
+        top: 0;
+        right: 0;
+        width: 100%;
+        margin-bottom: 1rem;
+        background: rgba(40, 44, 52, 0.9);
+        padding: 0.75rem;
+        border-radius: 4px 4px 0 0;
+        justify-content: flex-end;
+    }
+
+    .App-header {
+        padding-top: 0;
+    }
 }
