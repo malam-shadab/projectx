@@ -25,9 +25,11 @@
 }
 
 .App-header {
+  width: 90%;
+  margin: 0 auto;
   background-color: rgba(40, 44, 52, 0.9);
   padding: 2rem;
-  border-radius: 1rem;
+  border-radius: 0 0 1rem 1rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
   display: flex;
@@ -929,15 +931,17 @@ input[type="file"]:hover {
 }
 
 .user-controls {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
+    position: relative;
+    width: 90%;
+    margin: 0 auto 1rem auto;
+    background: rgba(40, 44, 52, 0.9);
+    padding: 0.75rem;
+    border-radius: 4px;
     display: flex;
+    justify-content: center;
     align-items: center;
     gap: 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    box-sizing: border-box;
 }
 
 .user-email {
