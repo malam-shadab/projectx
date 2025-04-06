@@ -5,18 +5,15 @@ on:
     branches:
       - main
 
-permissions:
-  contents: write
-
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     
     - name: Set up Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: '18'
         
@@ -33,42 +30,10 @@ jobs:
         REACT_APP_FIREBASE_STORAGE_BUCKET: ${{ secrets.REACT_APP_FIREBASE_STORAGE_BUCKET }}
         REACT_APP_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.REACT_APP_FIREBASE_MESSAGING_SENDER_ID }}
         REACT_APP_FIREBASE_APP_ID: ${{ secrets.REACT_APP_FIREBASE_APP_ID }}
-        REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
       run: |
         cd frontend
         npm run build
 
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-          cache: 'npm'
-          cache-dependency-path: 'frontend/package-lock.json'
-          
-      - name: Install Dependencies
-        run: |
-          cd frontend
-          npm install
-          npm install react-force-graph-2d d3-scale d3-scale-chromatic d3-color html2canvas jspdf
-          
-      - name: Build
-        env:
-          REACT_APP_API_URL: "https://projectx-api-malam-shadab-f485c3fe49cc.herokuapp.com"
-          CI: false
-          NODE_ENV: production
-        run: |
-          cd frontend
-          echo "Building with API URL: $REACT_APP_API_URL"
-          npm run build
-          
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: frontend/build
-          branch: gh-pages
-          clean: true
+    - name: Deploy
+      run: |
+        # Add your deployment steps here
