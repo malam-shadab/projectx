@@ -992,3 +992,57 @@ input[type="file"]:hover {
         box-sizing: border-box;
     }
 }
+
+/* User controls layout */
+.user-controls {
+    width: 90%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    padding: 0.75rem;
+    box-sizing: border-box;
+}
+
+.logout-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.3s ease;
+}
+
+.user-email {
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: 0.9rem;
+    background: rgba(40, 44, 52, 0.9);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+    .user-controls {
+        width: 90%;
+        margin: 0 auto 1rem auto;
+        justify-content: flex-end;
+    }
+
+    .user-email {
+        position: fixed;
+        bottom: 1rem;
+        width: 90%;
+        max-width: 300px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+    }
+}
