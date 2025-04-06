@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 
 // Validate Firebase configuration
 const validateConfig = () => {
@@ -34,5 +34,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Initialize and export Auth
-export const auth = getAuth(app);
+const auth = getAuth(app);
+
+// Set persistent auth state
+setPersistence(auth, browserLocalPersistence);
+
+export { auth };
 export default app;
