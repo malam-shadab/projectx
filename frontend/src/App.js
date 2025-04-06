@@ -12,7 +12,7 @@ import './App.css';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from './firebase/config';
 import Auth from './components/Auth';
-import LogoRibbons from './LogoRibbons';
+import LogoRibbons from './components/LogoRibbons';
 
 const App = () => {
     const [user, loading] = useAuthState(auth);
