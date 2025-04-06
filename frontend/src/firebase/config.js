@@ -2,6 +2,12 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
+console.log('Firebase Config:', {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY ? 'Present' : 'Missing',
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN ? 'Present' : 'Missing',
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID ? 'Present' : 'Missing'
+});
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
