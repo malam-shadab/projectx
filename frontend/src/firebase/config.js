@@ -2,11 +2,24 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
-console.log('Firebase Config:', {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY ? 'Present' : 'Missing',
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN ? 'Present' : 'Missing',
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID ? 'Present' : 'Missing'
-});
+// Validate Firebase configuration
+const validateConfig = () => {
+  const required = [
+    'REACT_APP_FIREBASE_API_KEY',
+    'REACT_APP_FIREBASE_AUTH_DOMAIN',
+    'REACT_APP_FIREBASE_PROJECT_ID'
+  ];
+
+  const missing = required.filter(key => !process.env[key]);
+  
+  if (missing.length) {
+    throw new Error(`Missing Firebase configuration: ${missing.join(', ')}`);
+  }
+};
+
+validateConfig();
+
+const isProd = process.env.NODE_ENV === 'production';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
